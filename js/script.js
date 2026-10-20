@@ -14,7 +14,7 @@ let toastTimer;
 function toast(message){const n=$(".toast");if(!n)return;n.textContent=message;n.classList.add("is-visible");clearTimeout(toastTimer);toastTimer=setTimeout(()=>n.classList.remove("is-visible"),2500);}
 function read(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch(e){return fallback}}
 function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){toast("Не удалось сохранить изменения в браузере.");return false}}
-function setTheme(theme){const value=theme==="dark"?"dark":"light";document.documentElement.dataset.theme=value;try{localStorage.setItem(THEME,value)}catch(e){};$("[data-theme-toggle]").forEach(button=>{button.textContent=value==="light"?"☾":"☀";button.setAttribute("aria-label",value==="light"?"Включить тёмную тему":"Включить светлую тему")})}
+function setTheme(theme){const value=theme==="dark"?"dark":"light";document.documentElement.dataset.theme=value;try{localStorage.setItem(THEME,value)}catch(e){};$$("[data-theme-toggle]").forEach(button=>{button.textContent=value==="light"?"☾":"☀";button.setAttribute("aria-label",value==="light"?"Включить тёмную тему":"Включить светлую тему")})}
 $$("[data-theme-toggle]").forEach(button=>button.addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")));
 let initialTheme=document.documentElement.dataset.theme||"light";try{const savedTheme=localStorage.getItem(THEME);if(savedTheme==="dark"||savedTheme==="light")initialTheme=savedTheme}catch(e){}setTheme(initialTheme);
 const nav=$("[data-main-nav]"),toggle=$("[data-menu-toggle]");
