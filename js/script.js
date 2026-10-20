@@ -1,0 +1,34 @@
+(() => {
+"use strict";
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const CART="iskra-cart", THEME="iskra-theme";
+const products={
+margherita:{title:"Маргарита",price:490,desc:"Томаты, моцарелла, базилик"},
+pepperoni:{title:"Пепперони",price:590,desc:"Пикантная колбаска, моцарелла"},
+mushroom:{title:"Грибная",price:560,desc:"Сливочный соус, шампиньоны"},
+"four-cheese":{title:"Четыре сыра",price:640,desc:"Моцарелла, горгонзола, пармезан"},
+lemonade:{title:"Лимонад",price:220,desc:"Лимон и свежая мята"},
+americano:{title:"Американо",price:180,desc:"Чёрный кофе"}
+};
+let toastTimer;
+function toast(message){const n=$(".toast");if(!n)return;n.textContent=message;n.classList.add("is-visible");clearTimeout(toastTimer);toastTimer=setTimeout(()=>n.classList.remove("is-visible"),2500);}
+function read(key,fallback){try{const raw=localStorage.getItem(key);return raw===null?fallback:JSON.parse(raw)}catch(e){return fallback}}
+function write(key,value){try{localStorage.setItem(key,JSON.stringify(value));return true}catch(e){toast("Не удалось сохранить изменения в браузере.");return false}}
+function setTheme(theme){const value=theme==="dark"?"dark":"light";document.documentElement.dataset.theme=value;try{localStorage.setItem(THEME,value)}catch(e){};$ $("[data-theme-toggle]".replace("$ ","")).forEach(button=>{button.textContent=value==="light"?"☾":"☀";button.setAttribute("aria-label",value==="light"?"Включить тёмную тему":"Включить светлую тему")})}
+$$("[data-theme-toggle]").forEach(button=>button.addEventListener("click",()=>setTheme(document.documentElement.dataset.theme==="dark"?"light":"dark")));
+setTheme(document.documentElement.dataset.theme==="dark"?"dark":"light");
+const nav=$("[data-main-nav]"),toggle=$("[data-menu-toggle]");
+if(nav&&toggle){toggle.addEventListener("click",()=>{const open=nav.classList.toggle("is-open");toggle.setAttribute("aria-expanded",String(open));toggle.textContent=open?"×":"☰"});$$("a",nav).forEach(link=>link.addEventListener("click",()=>{nav.classList.remove("is-open");toggle.setAttribute("aria-expanded","false");toggle.textContent="☰"}));const current=location.pathname.split("/").filter(Boolean).pop()||"index.html";$$("a",nav).forEach(link=>{if(link.getAttribute("href")===current)link.setAttribute("aria-current","page")})}
+function readCart(){const cart=read(CART,{});if(!cart||typeof cart!=="object"||Array.isArray(cart))return{};const safe={};Object.keys(products).forEach(id=>{const q=Number(cart[id]);if(Number.isInteger(q)&&q>0&&q<100)safe[id]=q});return safe}
+function cartTotal(cart){let count=0,sum=0;Object.entries(cart).forEach(([id,q])=>{if(products[id]){count+=q;sum+=products[id].price*q}});return{count,sum}}
+function renderCart(){const cart=readCart(),total=cartTotal(cart);$$("[data-cart-count]").forEach(n=>n.textContent=String(total.count));$$("[data-cart-quantity]").forEach(n=>n.textContent=String(total.count));$$("[data-cart-total]").forEach(n=>n.textContent=total.sum.toLocaleString("ru-RU")+" ₽");const list=$("[data-cart-items]");if(!list)return;list.replaceChildren();const entries=Object.entries(cart).filter(([id,q])=>products[id]&&q>0);if(!entries.length){const n=document.createElement("div");n.className="cart-empty";n.textContent="Корзина пока пуста. Выберите что-нибудь в меню выше.";list.appendChild(n);return}entries.forEach(([id,q])=>{const p=products[id],row=document.createElement("article");row.className="cart-row";const info=document.createElement("div"),h=document.createElement("h3"),desc=document.createElement("p");h.textContent=p.title+" · "+(p.price*q).toLocaleString("ru-RU")+" ₽";desc.textContent=p.desc;info.append(h,desc);const actions=document.createElement("div");actions.className="cart-row-actions";function qtyButton(symbol,label,fn){const b=document.createElement("button");b.type="button";b.className="qty-btn";b.textContent=symbol;b.setAttribute("aria-label",label);b.addEventListener("click",fn);return b}actions.appendChild(qtyButton("−","Уменьшить "+p.title,()=>{const n=readCart();if(n[id]<=1)delete n[id];else n[id]--;write(CART,n);renderCart()}));const num=document.createElement("span");num.className="qty-num";num.textContent=String(q);actions.appendChild(num);actions.appendChild(qtyButton("+","Увеличить "+p.title,()=>{const n=readCart();n[id]=Math.min(99,n[id]+1);write(CART,n);renderCart()}));const remove=document.createElement("button");remove.type="button";remove.className="remove-btn";remove.textContent="×";remove.setAttribute("aria-label","Удалить "+p.title);remove.addEventListener("click",()=>{const n=readCart();delete n[id];write(CART,n);renderCart();toast("Позиция удалена.")});actions.appendChild(remove);row.append(info,actions);list.appendChild(row)})}
+$$("[data-add-item]").forEach(button=>button.addEventListener("click",()=>{const id=button.dataset.addItem;if(!products[id])return;const cart=readCart();cart[id]=Math.min(99,(cart[id]||0)+1);if(write(CART,cart)){renderCart();toast(products[id].title+" добавлена в корзину.")}}));
+renderCart();
+const filters=$$("[data-menu-filter]"),items=$$("[data-menu-item]"),search=$("[data-menu-search");
+let active="all";
+function filterMenu(){if(!items.length)return;const term=search?search.value.trim().toLocaleLowerCase("ru"):"";let shown=0;items.forEach(item=>{const category=active==="all"||item.dataset.category===active;const text=(item.dataset.search+" "+item.textContent).toLocaleLowerCase("ru");item.hidden=!(category&&(!term||text.includes(term)));if(!item.hidden)shown++});const count=$("[data-menu-result-count]"),empty=$("[data-menu-empty]");if(count)count.textContent=shown+(shown===1?" позиция":shown>=2&&shown<=4?" позиции":" позиций");if(empty)empty.hidden=shown>0}
+filters.forEach(button=>button.addEventListener("click",()=>{active=button.dataset.menuFilter;filters.forEach(item=>item.setAttribute("aria-pressed",String(item===button)));filterMenu()}));
+if(search)search.addEventListener("input",filterMenu);filterMenu();
+const checkout=$("[data-checkout-form]");if(checkout)checkout.addEventListener("submit",event=>{event.preventDefault();if(!checkout.reportValidity())return;if(!cartTotal(readCart()).count){toast("Сначала добавьте позицию в корзину.");return}toast("Демо завершено: реальный заказ не отправлен.")});
+const contact=$("[data-contact-form]");if(contact)contact.addEventListener("submit",event=>{event.preventDefault();if(!contact.reportValidity())return;contact.reset();toast("Форма проверена. Сообщение не отправлялось.")});
+})();
