@@ -36,7 +36,14 @@
 | css/style.css | Палитра, компоненты и адаптивные стили |
 | js/script.js | Корзина, фильтры, темы и обработка форм |
 | img/logo.svg | Векторный логотип |
-| img/pizza.svg | Векторная иллюстрация пиццы |
+| img/pizza.svg | Векторная иллюстрация пиццы (резервный декоративный ресурс) |
+| images/hero-pizza.webp | Главное фото на главной странице |
+| images/margherita.webp | Фото пиццы Маргарита |
+| images/pepperoni.webp | Фото пиццы Пепперони |
+| images/mushroom.webp | Фото грибной пиццы |
+| images/four-cheese.webp | Фото пиццы Четыре сыра |
+| images/lemonade.webp | Фото напитка Добрый Кола |
+| images/americano.webp | Фото Американо |
 | favicon.svg | Иконка сайта |
 
 ## Технологии

@@ -7,7 +7,7 @@ margherita:{title:"Маргарита",price:490,desc:"Томаты, моцар�
 pepperoni:{title:"Пепперони",price:590,desc:"Пикантная колбаска, моцарелла"},
 mushroom:{title:"Грибная",price:560,desc:"Сливочный соус, шампиньоны"},
 "four-cheese":{title:"Четыре сыра",price:640,desc:"Моцарелла, горгонзола, пармезан"},
-lemonade:{title:"Лимонад",price:220,desc:"Лимон и свежая мята"},
+lemonade:{title:"Добрый Кола",price:220,desc:"Газированный напиток"},
 americano:{title:"Американо",price:180,desc:"Чёрный кофе"}
 };
 let toastTimer;
